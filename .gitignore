@@ -287,9 +287,6 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm
-
-.env
 .r
 .request_example
-key.pem
-cert.pem
+ssl/*
