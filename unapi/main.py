@@ -1,4 +1,5 @@
 import asyncio
+import json
 import random
 import hmac
 import hashlib
@@ -57,7 +58,8 @@ async def telegram_callback(request: Request):
 
 @app.post(webhook_urljoin(webhook_path, "viber"))
 async def viber_callback(request: Request):
-    raw_body, body = await asyncio.gather(request.body(), request.json())
+    raw_body = await request.body()
+    body = json.loads(raw_body.decode("utf-8"))
     signature_hash = request.headers.get("X-Viber-Content-Signature")
     if signature_hash:
         h = hmac.new(viber_token.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
@@ -81,7 +83,8 @@ async def facebook_subscribe(mode: str = Query(None, alias="hub.mode"),
 
 @app.post(webhook_urljoin(webhook_path, "facebook"))
 async def facebook_callback(request: Request):
-    raw_body, body = await asyncio.gather(request.body(), request.json())
+    raw_body = await request.body()
+    body = json.loads(raw_body.decode("utf-8"))
     signature_hash = request.headers.get("X-Hub-Signature-256").split("=")[1]
     h = hmac.new(facebook_app_secret.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
     if signature_hash == h and body["object"] == "page":
