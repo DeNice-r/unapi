@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException, Query, Request
 
 from util import webhook_urljoin
 
-from event import Event
+from event import EventFactory
 
 from unapi.platforms import facebook, viber, telegram  # to be removed
 import webhooks
@@ -49,8 +49,8 @@ async def telegram_callback(request: Request):
     if telegram_verification_token == verification_token and body["message"]:
         # The request is valid therefore calling user callback
 
-        message = Event.from_telegram(body)
-        telegram.send_message(message.chat_id, message.text)
+        message = EventFactory.create_event(body)
+        message.send_message(message.text)
         return "OK"
     return HTTPException(status_code=404, detail="Not found")
 
@@ -64,8 +64,8 @@ async def viber_callback(request: Request):
         if signature_hash == h and body["event"] == "message":
             # The request is valid therefore calling user callback
 
-            message = Event.from_viber(body)
-            viber.send_message(message.chat_id, message.text)
+            message = EventFactory.create_event(body)
+            message.send_message(message.text)
             return "OK"
     return HTTPException(status_code=404, detail="Not found")
 
@@ -87,7 +87,7 @@ async def facebook_callback(request: Request):
     if signature_hash == h and body["object"] == "page":
         # The request is valid therefore calling user callback
 
-        message = Event.from_facebook(body)
-        facebook.send_message(message.chat_id, message.text)
+        message = EventFactory.create_event(body)
+        message.send_message(message.text)
         return "EVENT_RECEIVED"
     return HTTPException(status_code=404, detail="Not found")
