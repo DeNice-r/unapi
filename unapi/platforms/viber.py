@@ -10,7 +10,7 @@ def send_message(chat_id, text: str):
     send_message_url = 'https://chatapi.viber.com/pa/send_message'
     resp = requests.post(send_message_url,
                          json={
-                             "receiver": chat_id,  # "t513Ir5QREQNo0OudyTXbA=="
+                             "receiver": chat_id,
                              "min_api_version": min_api_version,
                              "sender": {
                                 "name": "UnAPIBot"

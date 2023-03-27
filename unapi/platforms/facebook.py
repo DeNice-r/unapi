@@ -8,7 +8,7 @@ def send_message(chat_id, text: str):
     resp = requests.post(send_message_url,
                          json={
                              "recipient": {
-                                 "id": chat_id  # "6292716054074142"
+                                 "id": chat_id
                              },
                              "messaging_type": "RESPONSE",
                              "message": {
