@@ -1,5 +1,5 @@
 from urllib.parse import urljoin as _urljoin
-
+from abc import ABC
 from typing import Type, Any, TypeVar
 
 import base64
@@ -53,3 +53,10 @@ class NoPublicConstructor(type):
 
     def _create(cls: Type[T], *args: Any, **kwargs: Any) -> T:
         return super().__call__(*args, **kwargs)  # type: ignore
+
+
+class AbcNoPublicConstructor(ABC, NoPublicConstructor):
+    """
+    A class to use as a metaclass for Event that inherits both ABC and NoPublicConstructor
+    """
+    pass

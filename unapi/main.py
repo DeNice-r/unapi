@@ -1,4 +1,3 @@
-import asyncio
 import json
 import random
 import hmac
@@ -20,9 +19,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 app = FastAPI()
 
 webhook_path = environ["WEBHOOK_PATH"]
-
-telegram_verification_token = environ["TELEGRAM_VERIFICATION_TOKEN"]
-viber_token = environ["VIBER_TOKEN"]
 facebook_verification_token = environ["FACEBOOK_VERIFICATION_TOKEN"]
 facebook_app_secret = environ["FACEBOOK_APP_SECRET"]
 
@@ -45,31 +41,24 @@ async def webhook_init():
 
 @app.post(webhook_urljoin(webhook_path, "telegram"))
 async def telegram_callback(request: Request):
-    body = await request.json()
-    verification_token = request.headers.get("X-Telegram-Bot-Api-Secret-Token")
-    if telegram_verification_token == verification_token and body["message"]:
-        # The request is valid therefore calling user callback
-
-        message = EventFactory.create_event(body)
-        message.send_message(message.text)
-        return "OK"
-    return HTTPException(status_code=404, detail="Not found")
+    message = None
+    try:
+        message = await EventFactory.create_event(request)
+    except ValueError as e:
+        return HTTPException(status_code=400, detail=str(e))
+    message.send_message(message.text)
+    return "OK"
 
 
 @app.post(webhook_urljoin(webhook_path, "viber"))
 async def viber_callback(request: Request):
-    raw_body = await request.body()
-    body = json.loads(raw_body.decode("utf-8"))
-    signature_hash = request.headers.get("X-Viber-Content-Signature")
-    if signature_hash:
-        h = hmac.new(viber_token.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
-        if signature_hash == h and body["event"] == "message":
-            # The request is valid therefore calling user callback
-
-            message = EventFactory.create_event(body)
-            message.send_message(message.text)
-            return "OK"
-    return HTTPException(status_code=404, detail="Not found")
+    message = None
+    try:
+        message = await EventFactory.create_event(request)
+    except ValueError as e:
+        return HTTPException(status_code=400, detail=str(e))
+    message.send_message(message.text)
+    return "OK"
 
 
 @app.get("/webhook/facebook")
@@ -83,14 +72,10 @@ async def facebook_subscribe(mode: str = Query(None, alias="hub.mode"),
 
 @app.post(webhook_urljoin(webhook_path, "facebook"))
 async def facebook_callback(request: Request):
-    raw_body = await request.body()
-    body = json.loads(raw_body.decode("utf-8"))
-    signature_hash = request.headers.get("X-Hub-Signature-256").split("=")[1]
-    h = hmac.new(facebook_app_secret.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
-    if signature_hash == h and body["object"] == "page":
-        # The request is valid therefore calling user callback
-
-        message = EventFactory.create_event(body)
-        message.send_message(message.text)
-        return "EVENT_RECEIVED"
-    return HTTPException(status_code=404, detail="Not found")
+    message = None
+    try:
+        message = await EventFactory.create_event(request)
+    except ValueError as e:
+        return HTTPException(status_code=400, detail=str(e))
+    message.send_message(message.text)
+    return "OK"
