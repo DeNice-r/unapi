@@ -77,7 +77,7 @@ class Event(metaclass=AbcNoPublicConstructor):
         :param request: an incoming request object
         :return: True if request is valid, False otherwise
         """
-        pass
+        raise NotImplementedError("is_request_authentic is a subclass-implemented method")
 
     @staticmethod
     @abstractmethod
@@ -87,7 +87,7 @@ class Event(metaclass=AbcNoPublicConstructor):
         :param json_data: an incoming request body in json format
         :return: True if json is valid, False otherwise
         """
-        pass
+        raise NotImplementedError("is_json_valid is a subclass-implemented method")
 
     @abstractmethod
     def send_message(self, text: str) -> None:
@@ -96,7 +96,7 @@ class Event(metaclass=AbcNoPublicConstructor):
         :param text: a message to send
         :return: None
         """
-        pass
+        raise NotImplementedError("send_message is a subclass-implemented method")
 
     @classmethod
     @abstractmethod
@@ -106,7 +106,7 @@ class Event(metaclass=AbcNoPublicConstructor):
         :param json_data: an incoming request body in json format
         :return: an event object
         """
-        pass
+        raise NotImplementedError("create is a subclass-implemented method")
 
 
 class TelegramEvent(Event):
