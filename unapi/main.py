@@ -29,7 +29,6 @@ async def index():
     return (
         f"I'm ok {r.uniform(0, 1000)}",
         "https://unapi.pp.ua/init",
-        webhook_urljoin(webhook_path, "telegram")
         )
 
 
@@ -39,8 +38,8 @@ async def webhook_init():
     return f"I'm ok"
 
 
-@app.post(webhook_urljoin(webhook_path, "telegram"))
-async def telegram_callback(request: Request):
+@app.post(webhook_path)
+async def webhook_callback(request: Request):
     message = None
     try:
         message = await EventFactory.create_event(request)
@@ -50,32 +49,10 @@ async def telegram_callback(request: Request):
     return "OK"
 
 
-@app.post(webhook_urljoin(webhook_path, "viber"))
-async def viber_callback(request: Request):
-    message = None
-    try:
-        message = await EventFactory.create_event(request)
-    except ValueError as e:
-        return HTTPException(status_code=400, detail=str(e))
-    message.send_message(message.text)
-    return "OK"
-
-
-@app.get("/webhook/facebook")
+@app.get(webhook_path)  # How to remove this?
 async def facebook_subscribe(mode: str = Query(None, alias="hub.mode"),
                              verify_token: str = Query(None, alias="hub.verify_token"),
                              challenge: int = Query(None, alias="hub.challenge")):
     if verify_token == facebook_verification_token and mode == "subscribe":
         return challenge
     raise HTTPException(status_code=403, detail="Invalid key")
-
-
-@app.post(webhook_urljoin(webhook_path, "facebook"))
-async def facebook_callback(request: Request):
-    message = None
-    try:
-        message = await EventFactory.create_event(request)
-    except ValueError as e:
-        return HTTPException(status_code=400, detail=str(e))
-    message.send_message(message.text)
-    return "OK"

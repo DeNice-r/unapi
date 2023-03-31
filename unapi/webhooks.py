@@ -42,7 +42,7 @@ async def set_telegram_webhook() -> None:
     url = f"https://api.telegram.org/bot{telegram_token}/setWebhook"
     headers = {}
     body = {
-        "url": urljoin(api_url, webhook_urljoin(webhook_path, "telegram")),
+        "url": urljoin(api_url, webhook_path),
         "allowed_updates": "message",
         "secret_token": telegram_verification_token,
     }
@@ -66,7 +66,7 @@ async def set_viber_webhook() -> None:
         "Content-Type": "application/json",
     }
     body = {
-        "url": urljoin(api_url, webhook_urljoin(webhook_path, "viber")),
+        "url": urljoin(api_url, webhook_path),
         "event_types": [
             "conversation_started",
             "message",
@@ -94,7 +94,7 @@ async def set_facebook_webhook() -> None:
     body = {
         "access_token": facebook_page_token,
         "subscribed_fields": "messages, message_deliveries",
-        "callback_url": urljoin(api_url, webhook_urljoin(webhook_path, "facebook")),
+        "callback_url": urljoin(api_url, webhook_path),
         "verify_token": facebook_verification_token
     }
 
@@ -112,7 +112,7 @@ async def init() -> None:
     :return:
     """
     await asyncio.gather(
-        set_telegram_webhook(),
-        set_viber_webhook(),
+        # set_telegram_webhook(),
+        # set_viber_webhook(),
         set_facebook_webhook()
     )
