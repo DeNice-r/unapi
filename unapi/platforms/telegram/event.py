@@ -1,7 +1,6 @@
 from starlette.requests import Request
 
-from unapi.platforms.facebook import api
-from unapi.platforms.telegram import model
+from unapi.platforms.telegram import api, model
 from unapi.event import Event, MessengerType, telegram_verification_token
 
 

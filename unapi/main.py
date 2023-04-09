@@ -1,17 +1,14 @@
-import json
 import random
-import hmac
-import hashlib
 import logging
 
 from fastapi import FastAPI, HTTPException, Query, Request
 
-from util import webhook_urljoin
+from unapi.event import EventFactory
+from unapi.platforms.telegram.event import TelegramEvent
+from unapi.platforms.viber.event import ViberEvent
+from unapi.platforms.facebook.event import FacebookEvent
 
-from event import EventFactory
-
-from unapi.platforms import facebook, viber, telegram  # to be removed
-import webhooks
+from unapi.webhooks import init as webhooks_init
 
 from os import environ
 
@@ -34,7 +31,7 @@ async def index():
 
 @app.get("/init")
 async def webhook_init():
-    await webhooks.init()
+    await webhooks_init()
     return f"I'm ok"
 
 
