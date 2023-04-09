@@ -1,16 +1,10 @@
 from enum import Enum
 from typing import Union
 
-from unapi.event_models import viber_model, telegram_model, facebook_model
-from unapi.platforms import viber, telegram, facebook
 from unapi.util import AbcNoPublicConstructor
 from abc import abstractmethod
 from fastapi import Request
 from os import environ
-import json
-import hmac
-import hashlib
-
 
 telegram_verification_token = environ["TELEGRAM_VERIFICATION_TOKEN"]
 viber_token = environ["VIBER_TOKEN"]
@@ -109,108 +103,6 @@ class Event(metaclass=AbcNoPublicConstructor):
         raise NotImplementedError("create is a subclass-implemented method")
 
 
-class TelegramEvent(Event):
-    @classmethod
-    def create(cls, telegram_json: dict) -> "TelegramEvent":
-        return cls._create(
-            str(telegram_json["message"]["chat"]["id"]),
-            telegram_json["message"]["text"],
-            MessengerType.TELEGRAM,
-            telegram_json
-        )
-
-    @staticmethod
-    async def is_request_authentic(request: Request) -> bool:
-        try:
-            verification_token = request.headers.get("X-Telegram-Bot-Api-Secret-Token")
-            if telegram_verification_token == verification_token:
-                return True
-        except:
-            return False
-        return False
-
-    @staticmethod
-    def is_json_valid(json_data: dict) -> bool:
-        try:
-            telegram_model.Model(**json_data)
-        except:
-            return False
-        return True
-
-    def send_message(self, text) -> None:
-        telegram.send_message(self.chat_id, text)
-
-
-class ViberEvent(Event):
-    @classmethod
-    def create(cls, viber_json: dict) -> "ViberEvent":
-        return cls._create(
-            viber_json["sender"]["id"],
-            viber_json["message"]["text"],
-            MessengerType.VIBER,
-            viber_json
-        )
-
-    @staticmethod
-    async def is_request_authentic(request: Request) -> bool:
-        try:
-            raw_body = await request.body()
-            body = json.loads(raw_body.decode("utf-8"))
-            signature_hash = request.headers.get("X-Viber-Content-Signature")
-            h = hmac.new(viber_token.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
-            if signature_hash == h:
-                return True
-        except:
-            return False
-        return False
-
-    @staticmethod
-    def is_json_valid(json_data: dict) -> bool:
-        try:
-            viber_model.Model(**json_data)
-        except:
-            return False
-        return True
-
-    def send_message(self, text) -> None:
-        viber.send_message(self.chat_id, text)
-
-
-class FacebookEvent(Event):
-    @classmethod
-    def create(cls, facebook_json: dict) -> "FacebookEvent":
-        return cls._create(
-            facebook_json["entry"][0]["messaging"][0]["sender"]["id"],
-            facebook_json["entry"][0]["messaging"][0]["message"]["text"],
-            MessengerType.FACEBOOK,
-            facebook_json
-        )
-
-    @staticmethod
-    async def is_request_authentic(request: Request) -> bool:
-        try:
-            raw_body = await request.body()
-            body = json.loads(raw_body.decode("utf-8"))
-            signature_hash = request.headers.get("X-Hub-Signature-256").split("=")[1]
-            h = hmac.new(facebook_app_secret.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
-            if signature_hash == h and body["object"] == "page":
-                return True
-        except:
-            return False
-        return False
-
-    @staticmethod
-    def is_json_valid(json_data: dict) -> bool:
-        try:
-            facebook_model.Model(**json_data)
-        except:
-            return False
-        return True
-
-    def send_message(self, text) -> None:
-        facebook.send_message(self.chat_id, text)
-
-
 class EventFactory:
     @staticmethod
     async def create_event(request: Request) -> Event:
@@ -225,4 +117,4 @@ class EventFactory:
                 continue
             return evt
 
-        raise ValueError("Unknown messenger or the request is not authentic")
+        raise ValueError("Unknown request origin")
