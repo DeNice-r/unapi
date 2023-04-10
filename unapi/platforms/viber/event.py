@@ -11,11 +11,12 @@ from unapi.platforms.viber import api, model
 class ViberEvent(Event):
     @classmethod
     def create(cls, viber_json: dict) -> "ViberEvent":
+        _model = model.Model(**viber_json)
         return cls._create(
-            viber_json["sender"]["id"],
-            viber_json["message"]["text"],
+            _model.sender.id,
+            _model.message.text,
             MessengerType.VIBER,
-            viber_json
+            _model
         )
 
     @staticmethod

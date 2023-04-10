@@ -11,11 +11,12 @@ from unapi.platforms.facebook import api, model
 class FacebookEvent(Event):
     @classmethod
     def create(cls, facebook_json: dict) -> "FacebookEvent":
+        _model = model.Model(**facebook_json)
         return cls._create(
-            facebook_json["entry"][0]["messaging"][0]["sender"]["id"],
-            facebook_json["entry"][0]["messaging"][0]["message"]["text"],
+            _model.entry[0].messaging[0].sender.id,
+            _model.entry[0].messaging[0].message.text,
             MessengerType.FACEBOOK,
-            facebook_json
+            _model
         )
 
     @staticmethod

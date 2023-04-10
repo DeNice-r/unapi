@@ -7,11 +7,12 @@ from unapi.event import Event, MessengerType, telegram_verification_token
 class TelegramEvent(Event):
     @classmethod
     def create(cls, telegram_json: dict) -> "TelegramEvent":
+        _model = model.Model(**telegram_json)
         return cls._create(
-            str(telegram_json["message"]["chat"]["id"]),
-            telegram_json["message"]["text"],
+            _model.message.chat.id,
+            _model.message.text,
             MessengerType.TELEGRAM,
-            telegram_json
+            _model
         )
 
     @staticmethod

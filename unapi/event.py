@@ -1,4 +1,5 @@
 from enum import Enum
+from pydantic import BaseModel
 from typing import Union
 
 from unapi.util import AbcNoPublicConstructor
@@ -24,19 +25,19 @@ class Event(metaclass=AbcNoPublicConstructor):
     It stores text, chat_id and original request body
     """
     text: str
-    chat_id: str
+    chat_id: int | str
     messenger_type: MessengerType
-    original: dict
+    original: BaseModel
 
-    def __init__(self, chat_id: str, text: str, messenger_type: MessengerType, original: dict) -> None:
-        if not chat_id or not isinstance(chat_id, str):
-            raise ValueError("chat_id must be a non-empty string")
+    def __init__(self, chat_id: str, text: str, messenger_type: MessengerType, original: BaseModel) -> None:
+        if not chat_id or not (isinstance(chat_id, str) or isinstance(chat_id, int)):
+            raise ValueError("chat_id must be a non-empty string or a non-zero integer, depending on a messenger")
         if not text or not isinstance(text, str):
             raise ValueError("text must be a non-empty string")
         if not isinstance(messenger_type, MessengerType):
             raise ValueError("messenger_type must be of type MessengerType")
-        if not isinstance(original, dict):
-            raise ValueError("original must be a dictionary")
+        if not isinstance(original, BaseModel):
+            raise ValueError("original must be a pydantic BaseModel subclass")
 
         self.chat_id = chat_id
         self.text = text
