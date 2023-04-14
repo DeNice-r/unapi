@@ -16,9 +16,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 app = FastAPI()
 
 webhook_path = environ["WEBHOOK_PATH"]
-facebook_verification_token = environ["FACEBOOK_VERIFICATION_TOKEN"]
-facebook_app_secret = environ["FACEBOOK_APP_SECRET"]
-
 
 @app.get("/")
 async def index():
@@ -46,7 +43,11 @@ async def webhook_callback(request: Request):
     return "OK"
 
 
-@app.get(webhook_path)  # How to remove this?
+# Following code must be moved or removed
+facebook_verification_token = environ["FACEBOOK_VERIFICATION_TOKEN"]
+
+
+@app.get(webhook_path)
 async def facebook_subscribe(mode: str = Query(None, alias="hub.mode"),
                              verify_token: str = Query(None, alias="hub.verify_token"),
                              challenge: int = Query(None, alias="hub.challenge")):
