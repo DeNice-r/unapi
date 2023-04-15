@@ -1,7 +1,7 @@
 from starlette.requests import Request
 
 from unapi.platforms.telegram import api, model
-from unapi.event import Event, MessengerType, telegram_verification_token
+from unapi.event import Event, telegram_verification_token
 
 
 class TelegramEvent(Event):
@@ -11,7 +11,6 @@ class TelegramEvent(Event):
         return cls._create(
             _model.message.chat.id,
             _model.message.text,
-            MessengerType.TELEGRAM,
             _model
         )
 

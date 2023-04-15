@@ -1,4 +1,3 @@
-from enum import Enum
 from pydantic import BaseModel
 from typing import Union
 
@@ -13,12 +12,6 @@ facebook_verification_token = environ["FACEBOOK_VERIFICATION_TOKEN"]
 facebook_app_secret = environ["FACEBOOK_APP_SECRET"]
 
 
-class MessengerType(Enum):
-    TELEGRAM = 1
-    VIBER = 2
-    FACEBOOK = 3
-
-
 class Event(metaclass=AbcNoPublicConstructor):
     """
     Event class for all messengers with a private constructor.
@@ -26,22 +19,18 @@ class Event(metaclass=AbcNoPublicConstructor):
     """
     text: str
     chat_id: int | str
-    messenger_type: MessengerType
     original: BaseModel
 
-    def __init__(self, chat_id: str, text: str, messenger_type: MessengerType, original: BaseModel) -> None:
+    def __init__(self, chat_id: str, text: str, original: BaseModel) -> None:
         if not chat_id or not (isinstance(chat_id, str) or isinstance(chat_id, int)):
             raise ValueError("chat_id must be a non-empty string or a non-zero integer, depending on a messenger")
         if not text or not isinstance(text, str):
             raise ValueError("text must be a non-empty string")
-        if not isinstance(messenger_type, MessengerType):
-            raise ValueError("messenger_type must be of type MessengerType")
         if not isinstance(original, BaseModel):
             raise ValueError("original must be a pydantic BaseModel subclass")
 
         self.chat_id = chat_id
         self.text = text
-        self.messenger_type = messenger_type
         self.original = original
 
     @classmethod

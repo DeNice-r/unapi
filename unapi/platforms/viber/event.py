@@ -4,7 +4,7 @@ import json
 
 from starlette.requests import Request
 
-from unapi.event import Event, MessengerType, viber_token
+from unapi.event import Event, viber_token
 from unapi.platforms.viber import api, model
 
 
@@ -15,7 +15,6 @@ class ViberEvent(Event):
         return cls._create(
             _model.sender.id,
             _model.message.text,
-            MessengerType.VIBER,
             _model
         )
 

@@ -4,7 +4,7 @@ import json
 
 from starlette.requests import Request
 
-from unapi.event import Event, MessengerType, facebook_app_secret
+from unapi.event import Event, facebook_app_secret
 from unapi.platforms.facebook import api, model
 
 
@@ -15,7 +15,6 @@ class FacebookEvent(Event):
         return cls._create(
             _model.entry[0].messaging[0].sender.id,
             _model.entry[0].messaging[0].message.text,
-            MessengerType.FACEBOOK,
             _model
         )
 
