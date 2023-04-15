@@ -6,11 +6,6 @@ from abc import abstractmethod
 from fastapi import Request
 from os import environ
 
-telegram_verification_token = environ["TELEGRAM_VERIFICATION_TOKEN"]
-viber_token = environ["VIBER_TOKEN"]
-facebook_verification_token = environ["FACEBOOK_VERIFICATION_TOKEN"]
-facebook_app_secret = environ["FACEBOOK_APP_SECRET"]
-
 
 class Event(metaclass=AbcNoPublicConstructor):
     """

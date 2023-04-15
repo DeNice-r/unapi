@@ -4,8 +4,12 @@ import json
 
 from starlette.requests import Request
 
-from unapi.event import Event, viber_token
+from unapi.event import Event
 from unapi.platforms.viber import api, model
+
+from os import environ
+
+viber_token = environ["VIBER_TOKEN"]
 
 
 class ViberEvent(Event):

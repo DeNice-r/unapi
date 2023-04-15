@@ -4,8 +4,13 @@ import json
 
 from starlette.requests import Request
 
-from unapi.event import Event, facebook_app_secret
+from unapi.event import Event
 from unapi.platforms.facebook import api, model
+
+from os import environ
+
+facebook_verification_token = environ["FACEBOOK_VERIFICATION_TOKEN"]
+facebook_app_secret = environ["FACEBOOK_APP_SECRET"]
 
 
 class FacebookEvent(Event):

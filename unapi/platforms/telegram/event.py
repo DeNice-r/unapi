@@ -1,7 +1,11 @@
 from starlette.requests import Request
 
 from unapi.platforms.telegram import api, model
-from unapi.event import Event, telegram_verification_token
+from unapi.event import Event
+
+from os import environ
+
+telegram_verification_token = environ["TELEGRAM_VERIFICATION_TOKEN"]
 
 
 class TelegramEvent(Event):
