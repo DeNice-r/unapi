@@ -4,9 +4,7 @@ import logging
 from fastapi import FastAPI, HTTPException, Query, Request
 
 from unapi.event import EventFactory
-from unapi.platforms.telegram.event import TelegramEvent
-from unapi.platforms.viber.event import ViberEvent
-from unapi.platforms.facebook.event import FacebookEvent
+from unapi import platforms
 
 from unapi.webhooks import init as webhooks_init
 
@@ -16,6 +14,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 app = FastAPI()
 
 webhook_path = environ["WEBHOOK_PATH"]
+
 
 @app.get("/")
 async def index():
