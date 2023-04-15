@@ -1,1 +1,1 @@
-from event import Event as TelegramEvent
+from .event import TelegramEvent

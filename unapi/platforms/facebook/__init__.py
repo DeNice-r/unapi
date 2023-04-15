@@ -1,1 +1,1 @@
-from event import Event as FacebookEvent
+from .event import FacebookEvent

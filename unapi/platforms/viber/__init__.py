@@ -1,1 +1,1 @@
-from event import Event as ViberEvent
+from .event import ViberEvent
