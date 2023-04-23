@@ -1,6 +1,8 @@
+from pydantic import BaseModel
 from starlette.requests import Request
 
-from unapi.platforms.telegram import api, model
+from unapi.platforms.telegram import api
+from unapi.platforms.telegram.model import Model
 from unapi.event import Event
 
 from os import environ
@@ -10,12 +12,11 @@ telegram_verification_token = environ["TELEGRAM_VERIFICATION_TOKEN"]
 
 class TelegramEvent(Event):
     @classmethod
-    def create(cls, telegram_json: dict) -> "TelegramEvent":
-        _model = model.Model(**telegram_json)
+    def create(cls, data: Model) -> "TelegramEvent":
         return cls._create(
-            _model.message.chat.id,
-            _model.message.text,
-            _model
+            data.message.chat.id,
+            data.message.text,
+            data
         )
 
     @staticmethod
@@ -29,12 +30,11 @@ class TelegramEvent(Event):
         return False
 
     @staticmethod
-    def is_json_valid(json_data: dict) -> bool:
+    def is_json_valid(json_data: dict) -> BaseModel | None:
         try:
-            model.Model(**json_data)
+            return Model(**json_data)
         except:
-            return False
-        return True
+            return None
 
     def send_message(self, text) -> None:
         api.send_message(self.chat_id, text)

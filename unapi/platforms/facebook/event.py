@@ -5,7 +5,8 @@ import json
 from starlette.requests import Request
 
 from unapi.event import Event
-from unapi.platforms.facebook import api, model
+from unapi.platforms.facebook import api
+from unapi.platforms.facebook.model import Model
 
 from os import environ
 
@@ -15,12 +16,11 @@ facebook_app_secret = environ["FACEBOOK_APP_SECRET"]
 
 class FacebookEvent(Event):
     @classmethod
-    def create(cls, facebook_json: dict) -> "FacebookEvent":
-        _model = model.Model(**facebook_json)
+    def create(cls, data: Model) -> "FacebookEvent":
         return cls._create(
-            _model.entry[0].messaging[0].sender.id,
-            _model.entry[0].messaging[0].message.text,
-            _model
+            data.entry[0].messaging[0].sender.id,
+            data.entry[0].messaging[0].message.text,
+            data
         )
 
     @staticmethod
@@ -37,12 +37,11 @@ class FacebookEvent(Event):
         return False
 
     @staticmethod
-    def is_json_valid(json_data: dict) -> bool:
+    def is_json_valid(json_data: dict) -> Model | None:
         try:
-            model.Model(**json_data)
+            return Model(**json_data)
         except:
-            return False
-        return True
+            return None
 
     def send_message(self, text) -> None:
         api.send_message(self.chat_id, text)

@@ -35,12 +35,13 @@ class Event(metaclass=AbcNoPublicConstructor):
         :param request: an incoming request object
         :return: an event object or None if request is invalid
         """
-        if await cls.is_request_valid(request):
-            return cls.create(await request.json())
+        data = await cls.is_request_valid(request)
+        if data:
+            return cls.create(data)
         return None
 
     @classmethod
-    async def is_request_valid(cls, request: Request) -> bool:
+    async def is_request_valid(cls, request: Request) -> BaseModel | None:
         """
         A static method that checks if json is valid for this event
         :param request: an incoming request object
@@ -60,7 +61,7 @@ class Event(metaclass=AbcNoPublicConstructor):
 
     @staticmethod
     @abstractmethod
-    def is_json_valid(json_data: dict) -> bool:
+    def is_json_valid(json_data: dict) -> BaseModel | None:
         """
         A static method that checks if json is valid for this event
         :param json_data: an incoming request body in json format
@@ -79,10 +80,10 @@ class Event(metaclass=AbcNoPublicConstructor):
 
     @classmethod
     @abstractmethod
-    def create(cls, json_data: dict) -> "Event":
+    def create(cls, data: BaseModel) -> "Event":
         """
         A class method that creates an event from json
-        :param json_data: an incoming request body in json format
+        :param data: an incoming request body, already checked for validity and in pydantic model format
         :return: an event object
         """
         raise NotImplementedError("create is a subclass-implemented method")

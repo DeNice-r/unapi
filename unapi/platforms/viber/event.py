@@ -5,7 +5,8 @@ import json
 from starlette.requests import Request
 
 from unapi.event import Event
-from unapi.platforms.viber import api, model
+from unapi.platforms.viber import api
+from unapi.platforms.viber.model import Model
 
 from os import environ
 
@@ -14,12 +15,11 @@ viber_token = environ["VIBER_TOKEN"]
 
 class ViberEvent(Event):
     @classmethod
-    def create(cls, viber_json: dict) -> "ViberEvent":
-        _model = model.Model(**viber_json)
+    def create(cls, data: Model) -> "ViberEvent":
         return cls._create(
-            _model.sender.id,
-            _model.message.text,
-            _model
+            data.sender.id,
+            data.message.text,
+            data
         )
 
     @staticmethod
@@ -36,12 +36,11 @@ class ViberEvent(Event):
         return False
 
     @staticmethod
-    def is_json_valid(json_data: dict) -> bool:
+    def is_json_valid(json_data: dict) -> Model | None:
         try:
-            model.Model(**json_data)
+            return Model(**json_data)
         except:
-            return False
-        return True
+            return None
 
     def send_message(self, text) -> None:
         api.send_message(self.chat_id, text)
