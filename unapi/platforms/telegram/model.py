@@ -1,3 +1,4 @@
+import datetime
 import os
 import uuid
 
@@ -26,12 +27,13 @@ class Chat(BaseModel):
     type: str
 
 
-class PhotoItem(BaseModel):
+class PhotoSize(BaseModel):
     file_id: str
     file_unique_id: str
     file_size: int
     width: int
     height: int
+    local_path: str | None = None
 
 
 class Message(BaseModel):
@@ -40,19 +42,26 @@ class Message(BaseModel):
     chat: Chat
     date: int
     text: str = Field(default='-', alias='caption')  # caption is used for photos
-    # Must download file from telegram servers, save it to local storage and use own file class
-    photo: List[PhotoItem] | None
+    photo: List[PhotoSize] | None
+
+    @property
+    def photo_path(self) -> str | None:
+        if self.photo:
+            return self.photo[-1].local_path
+        return None
+
 
     class Config:
         allow_population_by_field_name = True
 
     @validator('photo')
-    def validate_photo(cls, value, values):
+    def validate_photo(cls, value):
         if not value:
             return value
 
-        print('Starting photo validation')
-        photo = value[-1]
+        photo = value[-1]  # Only last variant is used as it is the biggest one
+        if photo.local_path:
+            return value
         file_id = photo.file_id
         file_url = f"https://api.telegram.org/bot{telegram_token}/getFile?file_id={file_id}"
         response = requests.get(file_url)
@@ -65,16 +74,16 @@ class Message(BaseModel):
 
             if response.ok:
                 extension = os.path.splitext(file_path)[-1]
-                local_file_path = os.path.join(os.getcwd(), local_storage_path, 'images', str(uuid.uuid4()) + extension)
-                with open(local_file_path, 'wb') as f:
+                local_path = os.path.join(local_storage_path, 'images', datetime.datetime.now().strftime("%d.%m.%Y_%H-%M-%S") + '_' + str(uuid.uuid4()) + extension)
+                with open(local_path, 'wb') as f:
                     f.write(response.content)
-                print('Ending photo validation')
+                photo.local_path = local_path
             else:
                 raise ValueError(f"Error downloading file: {response.status_code} {response.reason}")
         else:
             raise ValueError(f"Error getting file path: {response_json['error_code']} {response_json['description']}")
 
-        return values
+        return value
 
 
 class Model(BaseModel):
