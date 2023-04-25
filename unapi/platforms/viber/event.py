@@ -14,13 +14,15 @@ viber_token = environ["VIBER_TOKEN"]
 
 
 class ViberEvent(Event):
-    @classmethod
-    def create(cls, data: Model) -> "ViberEvent":
-        return cls._create(
-            data.sender.id,
-            data.message.text,
-            data
-        )
+    original: Model  # this is needed to tell pydantic that original is a Model
+
+    @property
+    def chat_id(self) -> int | str:
+        return self.original.sender.id
+
+    @property
+    def text(self) -> str:
+        return self.original.message.text
 
     @staticmethod
     async def is_request_authentic(request: Request) -> bool:

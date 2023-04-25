@@ -11,13 +11,15 @@ telegram_verification_token = environ["TELEGRAM_VERIFICATION_TOKEN"]
 
 
 class TelegramEvent(Event):
-    @classmethod
-    def create(cls, data: Model) -> "TelegramEvent":
-        return cls._create(
-            data.message.chat.id,
-            data.message.text,
-            data
-        )
+    original: Model  # this is needed to tell pydantic that original is a Model
+
+    @property
+    def chat_id(self) -> int | str:
+        return self.original.message.chat.id
+
+    @property
+    def text(self) -> str:
+        return self.original.message.text
 
     @staticmethod
     async def is_request_authentic(request: Request) -> bool:

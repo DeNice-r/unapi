@@ -15,13 +15,15 @@ facebook_app_secret = environ["FACEBOOK_APP_SECRET"]
 
 
 class FacebookEvent(Event):
-    @classmethod
-    def create(cls, data: Model) -> "FacebookEvent":
-        return cls._create(
-            data.entry[0].messaging[0].sender.id,
-            data.entry[0].messaging[0].message.text,
-            data
-        )
+    original: Model  # this is needed to tell pydantic that original is a Model
+
+    @property
+    def chat_id(self) -> int | str:
+        return self.original.entry[0].messaging[0].sender.id
+
+    @property
+    def text(self) -> str:
+        return self.original.entry[0].messaging[0].message.text
 
     @staticmethod
     async def is_request_authentic(request: Request) -> bool:

@@ -12,21 +12,42 @@ class Event(metaclass=AbcNoPublicConstructor):
     Event class for all messengers with a private constructor.
     It stores text, chat_id and original request body
     """
-    text: str
-    chat_id: int | str
     original: BaseModel
 
-    def __init__(self, chat_id: str, text: str, original: BaseModel) -> None:
-        if not chat_id or not (isinstance(chat_id, str) or isinstance(chat_id, int)):
-            raise ValueError("chat_id must be a non-empty string or a non-zero integer, depending on a messenger")
-        if not text or not isinstance(text, str):
-            raise ValueError("text must be a non-empty string")
+    def __init__(self, original: BaseModel) -> None:
         if not isinstance(original, BaseModel):
             raise ValueError("original must be a pydantic BaseModel subclass")
 
-        self.chat_id = chat_id
-        self.text = text
         self.original = original
+
+    @classmethod
+    def create(cls, data: BaseModel) -> "Event":
+        """
+        A class method that creates an event from respective pydantic model
+        :param data: an incoming request body, already checked for validity and in pydantic model format
+        :return: an event object
+        """
+        if cls is Event:
+            raise NotImplementedError("create should never be called on Event directly")
+        return cls._create(data)
+
+    @property
+    @abstractmethod
+    def chat_id(self) -> int | str:
+        """
+        A property that returns a chat id
+        :return: a chat id
+        """
+        raise NotImplementedError("chat_id is a subclass-implemented property")
+
+    @property
+    @abstractmethod
+    def text(self) -> str:
+        """
+        A property that returns message text
+        :return: a text
+        """
+        raise NotImplementedError("text is a subclass-implemented property")
 
     @classmethod
     async def create_if_valid(cls, request: Request) -> Union["Event", None]:
@@ -77,16 +98,6 @@ class Event(metaclass=AbcNoPublicConstructor):
         :return: None
         """
         raise NotImplementedError("send_message is a subclass-implemented method")
-
-    @classmethod
-    @abstractmethod
-    def create(cls, data: BaseModel) -> "Event":
-        """
-        A class method that creates an event from json
-        :param data: an incoming request body, already checked for validity and in pydantic model format
-        :return: an event object
-        """
-        raise NotImplementedError("create is a subclass-implemented method")
 
 
 class EventFactory:
