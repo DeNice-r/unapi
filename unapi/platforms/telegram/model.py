@@ -7,9 +7,9 @@ from pydantic import BaseModel, Field, validator
 from typing import List
 from os import environ
 
+from unapi.util import save_image
 
 telegram_token = environ["TELEGRAM_TOKEN"]
-local_storage_path = environ["LOCAL_STORAGE_PATH"]
 
 
 class From(BaseModel):
@@ -73,11 +73,7 @@ class Message(BaseModel):
             response = requests.get(file_url)
 
             if response.ok:
-                extension = os.path.splitext(file_path)[-1]
-                local_path = os.path.join(local_storage_path, 'images', datetime.datetime.now().strftime("%d.%m.%Y_%H-%M-%S") + '_' + str(uuid.uuid4()) + extension)
-                with open(local_path, 'wb') as f:
-                    f.write(response.content)
-                photo.local_path = local_path
+                photo.local_path = save_image(file_path, response.content)
             else:
                 raise ValueError(f"Error downloading file: {response.status_code} {response.reason}")
         else:
