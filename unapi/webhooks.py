@@ -1,6 +1,5 @@
 import logging
 from urllib.parse import urljoin
-from util import webhook_urljoin
 from os import environ
 
 import asyncio
