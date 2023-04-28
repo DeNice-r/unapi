@@ -41,7 +41,7 @@ class Message(BaseModel):
     from_: From = Field(..., alias='from')
     chat: Chat
     date: int
-    text: str = Field(default='-', alias='caption')  # caption is used for photos
+    text: str = Field(default='', alias='caption')  # caption is used for photos
     photo: List[PhotoSize] | None
 
     @property
@@ -56,8 +56,8 @@ class Message(BaseModel):
 
     @validator('photo')
     def validate_photo(cls, value):
-        if not value:
-            return value
+        if len(value) < 1 or not value[-1].file_id:
+            raise ValueError("No photo found")
 
         photo = value[-1]  # Only last variant is used as it is the biggest one
         if photo.local_path:
