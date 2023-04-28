@@ -112,7 +112,7 @@ async def init() -> None:
     :return:
     """
     await asyncio.gather(
-        # set_telegram_webhook(),
-        # set_viber_webhook(),
+        set_telegram_webhook(),
+        set_viber_webhook(),
         set_facebook_webhook()
     )
