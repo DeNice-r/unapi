@@ -24,24 +24,13 @@ class AttachmentItem(BaseModel):
     type: str
     payload: PayloadItem
 
-    @validator('type')
-    def validate_type(cls, v):
-        if v not in ['image']:  # audio, video, file, location, fallback
-            message = f'Invalid attachment type: {v}'
-            logging.error(message)
-            raise ValueError(message)
-        return v
-
     @validator('payload')
-    def validate_payload(cls, v):
-        if not v:
-            raise ValueError('Payload is empty')
-
-        response = requests.get(v.url)
+    def download_attachment(cls, value):
+        response = requests.get(value.url)
         if response.ok:
             file_path = response.url.split('/')[-1].split('?')[0]
-            v.local_path = save_image(file_path, response.content)
-        return v
+            value.local_path = save_image(file_path, response.content)
+        return value
 
 
 class Message(BaseModel):
@@ -55,6 +44,16 @@ class MessagingItem(BaseModel):
     recipient: Recipient
     timestamp: int
     message: Message
+
+    @validator('message')
+    def validate_attachments(cls, value):
+        if value.attachments is None:
+            return value
+        for attachment in value.attachments:
+            if attachment.type not in ['image']:  # audio, video, file, location, fallback
+                value.message.text = f'Message contains invalid attachment type: {value}'
+                break
+        return value
 
 
 class EntryItem(BaseModel):
