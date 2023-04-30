@@ -55,9 +55,9 @@ class Message(BaseModel):
         allow_population_by_field_name = True
 
     @validator('photo')
-    def validate_photo(cls, value):
-        if len(value) < 1 or not value[-1].file_id:
-            raise ValueError("No photo found")
+    def download_attachment(cls, value):
+        if value is None:
+            return value
 
         photo = value[-1]  # Only last variant is used as it is the biggest one
         if photo.local_path:
