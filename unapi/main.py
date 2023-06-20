@@ -33,12 +33,12 @@ async def webhook_init():
 
 @app.post(webhook_path)
 async def webhook_callback(request: Request):
-    message = None
+    event = None
     try:
-        message = await EventFactory.create_event(request)
+        event = await EventFactory.create_event(request)
     except ValueError as e:
         return HTTPException(status_code=400, detail=str(e))
-    message.send_message(message.text)
+    event.send_message(event.text)
     return "OK"
 
 

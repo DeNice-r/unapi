@@ -1,9 +1,11 @@
 import hashlib
 import hmac
 import json
+from typing import List
 
 from starlette.requests import Request
 
+from unapi.attachment import Attachment, AttachmentType
 from unapi.event import Event
 from unapi.platforms.viber import api
 from unapi.platforms.viber.model import Model
@@ -23,6 +25,33 @@ class ViberEvent(Event):
     @property
     def text(self) -> str:
         return self.original.message.text
+
+    def get_attachments(self) -> List[Attachment]:
+        attachments = []
+        message = self.original.message
+        file_name = message.file_name.split('.')
+        attachments.append(
+            Attachment(
+                name=file_name[0],
+                extension=file_name[-1],
+                type=AttachmentType(message.type),
+                url=message.media
+            )
+        )
+        return attachments
+
+    # Viber attachment downloading example:
+
+    # @validator('message')
+    # def download_attachment(cls, value):
+    #     if value.type == 'picture':
+    #         response = requests.get(value.media)
+    #         if response.ok:
+    #             file_path = value.file_name
+    #             value.local_path = save_image(file_path, response.content)
+    #     elif value.type != 'text':
+    #         value.text = f'Unsupported message type: {value.type}'
+    #     return value
 
     @staticmethod
     async def is_request_authentic(request: Request) -> bool:

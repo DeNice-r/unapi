@@ -1,7 +1,9 @@
 from pydantic import BaseModel
-from typing import Union
+from typing import Union, List
 
 from unapi.util import AbcNoPublicConstructor
+from unapi.attachment import Attachment
+
 from abc import abstractmethod
 from fastapi import Request
 from os import environ
@@ -13,6 +15,7 @@ class Event(metaclass=AbcNoPublicConstructor):
     It stores text, chat_id and original request body
     """
     original: BaseModel
+    __attachments: List[Attachment] | None = None
 
     def __init__(self, original: BaseModel) -> None:
         if not isinstance(original, BaseModel):
@@ -46,6 +49,26 @@ class Event(metaclass=AbcNoPublicConstructor):
         """
         A property that returns message text
         :return: a text
+        """
+        raise NotImplementedError("text is a subclass-implemented property")
+
+    @property
+    @abstractmethod
+    def attachments(self) -> List[Attachment]:
+        """
+        A property that returns message attachments
+        :return: List[Attachment]
+        """
+        if self.__attachments is None:
+            self.__attachments = self.get_attachments()
+
+        return self.__attachments
+
+    @abstractmethod
+    def get_attachments(self) -> List[Attachment]:
+        """
+        A method that gathers message attachments
+        :return: List[Attachment]
         """
         raise NotImplementedError("text is a subclass-implemented property")
 
