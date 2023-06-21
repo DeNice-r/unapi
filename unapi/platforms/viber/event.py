@@ -10,7 +10,7 @@ from unapi.event import Event
 from unapi.platforms.viber import api
 from unapi.platforms.viber.model import Model
 
-from os import environ
+from os import environ, path
 
 viber_token = environ["VIBER_TOKEN"]
 
@@ -26,10 +26,14 @@ class ViberEvent(Event):
     def text(self) -> str:
         return self.original.message.text
 
-    def get_attachments(self) -> List[Attachment]:
+    def _get_attachments(self) -> List[Attachment]:
         attachments = []
         message = self.original.message
-        file_name = message.file_name.split('.')
+
+        if message.file_name is None:
+            return attachments
+
+        file_name = path.splitext(message.file_name)
 
         # Viber has picture instead of photo, so we need to map it
         attachment_type_mapping = {
@@ -49,24 +53,11 @@ class ViberEvent(Event):
             Attachment(
                 name=file_name[0],
                 extension=file_name[-1],
-                type=attachment_type,
+                type_=attachment_type,
                 url=message.media
             )
         )
         return attachments
-
-    # Viber attachment downloading example:
-
-    # @validator('message')
-    # def download_attachment(cls, value):
-    #     if value.type == 'picture':
-    #         response = requests.get(value.media)
-    #         if response.ok:
-    #             file_path = value.file_name
-    #             value.local_path = save_image(file_path, response.content)
-    #     elif value.type != 'text':
-    #         value.text = f'Unsupported message type: {value.type}'
-    #     return value
 
     @staticmethod
     async def is_request_authentic(request: Request) -> bool:

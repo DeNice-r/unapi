@@ -10,7 +10,7 @@ from unapi.attachment import Attachment, AttachmentType
 from unapi.platforms.facebook import api
 from unapi.platforms.facebook.model import Model
 
-from os import environ
+from os import environ, path
 
 facebook_verification_token = environ["FACEBOOK_VERIFICATION_TOKEN"]
 facebook_app_secret = environ["FACEBOOK_APP_SECRET"]
@@ -29,9 +29,12 @@ class FacebookEvent(Event):
 
     def _get_attachments(self) -> List[Attachment]:
         attachments = []
-        for attachment in self.original.entry[0].messaging[0].message.attachments:
+        original_attachments = self.original.entry[0].messaging[0].message.attachments
+        if original_attachments is None:
+            return attachments
+        for attachment in original_attachments:
             url = attachment.payload.url
-            file_name = url.split('/')[-1].split('?')[0].split('.')
+            file_name = path.splitext(url.split('/')[-1].split('?')[0])
 
             # Facebook has image instead of photo, so we need to map it
             attachment_type_mapping = {
@@ -51,21 +54,11 @@ class FacebookEvent(Event):
                 Attachment(
                     name=file_name[0],
                     extension=file_name[-1],
-                    type=attachment_type,
+                    type_=attachment_type,
                     url=url
                 )
             )
         return attachments
-
-    # Facebook attachment downloading example:
-
-    # @validator('payload')
-    # def download_attachment(cls, value):
-    #     response = requests.get(value.url)
-    #     if response.ok:
-    #         file_path = response.url.split('/')[-1].split('?')[0]
-    #         value.local_path = save_image(file_path, response.content)
-    #     return value
 
     @staticmethod
     async def is_request_authentic(request: Request) -> bool:

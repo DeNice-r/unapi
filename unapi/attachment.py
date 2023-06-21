@@ -1,5 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel
+from unapi.util import download_attachment
 
 
 class AttachmentType(Enum):
@@ -11,9 +12,12 @@ class AttachmentType(Enum):
 
 
 class Attachment(BaseModel):
+    # TODO: consider adding a new type for unsupported attachments
     name: str
-    type: AttachmentType
+    type_: AttachmentType
     extension: str
     url: str
 
-    # Downloading method
+    # Downloading method. May be overridden in subclasses
+    def download(self, save=True) -> str | bytes | None:
+        return download_attachment(self, save)

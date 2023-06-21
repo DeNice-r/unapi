@@ -7,7 +7,7 @@ from unapi.platforms.telegram import api
 from unapi.platforms.telegram.model import Model
 from unapi.event import Event
 
-from os import environ
+from os import environ, path
 
 telegram_verification_token = environ["TELEGRAM_VERIFICATION_TOKEN"]
 telegram_token = environ["TELEGRAM_TOKEN"]
@@ -24,7 +24,7 @@ class TelegramEvent(Event):
     def text(self) -> str:
         return self.original.message.text
 
-    def get_attachments(self) -> list:
+    def _get_attachments(self) -> list:
         attachments = []
         file_id = self.original.message.photo[-1].file_id
         file_url = f"https://api.telegram.org/bot{telegram_token}/getFile?file_id={file_id}"
@@ -32,12 +32,12 @@ class TelegramEvent(Event):
         if not response_json["ok"]:
             raise ValueError('Error getting file path')
         file_path = response_json["result"]["file_path"]
-        file_name = file_path.split('/')[-1].split('.')
+        file_name = path.splitext(file_path.split('/')[-1])
         attachments.append(
             Attachment(
                 name=file_name[0],
                 extension=file_name[-1],
-                type=AttachmentType('photo'),
+                type_=AttachmentType('photo'),
                 url=f"https://api.telegram.org/file/bot{telegram_token}/{file_path}"
             )
         )

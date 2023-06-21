@@ -72,6 +72,14 @@ class Event(metaclass=AbcNoPublicConstructor):
         """
         raise NotImplementedError("text is a subclass-implemented property")
 
+    def download_attachments(self, save: bool = True) -> List[str | bytes | None]:
+        """
+        A method that downloads message attachments
+        :param save: if True, saves attachments to local storage and returns paths
+        :return: List[str | bytes | None]
+        """
+        return [attachment.download(save) for attachment in self.attachments]
+
     @classmethod
     async def create_if_valid(cls, request: Request) -> Union["Event", None]:
         """
