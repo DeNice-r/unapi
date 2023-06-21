@@ -35,9 +35,9 @@ class ViberEvent(Event):
 
         file_name = path.splitext(message.file_name)
 
-        # Viber has picture instead of photo, so we need to map it
+        # Viber has picture instead of image, so we need to map it
         attachment_type_mapping = {
-            'picture': AttachmentType.Photo.value
+            'picture': AttachmentType.Image.value
         }
 
         _type = message.type

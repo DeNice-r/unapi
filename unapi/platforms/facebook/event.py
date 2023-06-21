@@ -36,19 +36,10 @@ class FacebookEvent(Event):
             url = attachment.payload.url
             file_name = path.splitext(url.split('/')[-1].split('?')[0])
 
-            # Facebook has image instead of photo, so we need to map it
-            attachment_type_mapping = {
-                'image': AttachmentType.Photo.value
-            }
-
-            _type = attachment.type
-            if _type in attachment_type_mapping:
-                attachment_type = AttachmentType(attachment_type_mapping[_type])
-            else:
-                try:
-                    attachment_type = AttachmentType(_type)
-                except ValueError:
-                    continue
+            try:
+                attachment_type = AttachmentType(attachment.type)
+            except ValueError:
+                continue
 
             attachments.append(
                 Attachment(

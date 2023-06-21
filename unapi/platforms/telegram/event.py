@@ -37,7 +37,7 @@ class TelegramEvent(Event):
             Attachment(
                 name=file_name[0],
                 extension=file_name[-1],
-                type_=AttachmentType('photo'),
+                type_=AttachmentType.Image,
                 url=f"https://api.telegram.org/file/bot{telegram_token}/{file_path}"
             )
         )

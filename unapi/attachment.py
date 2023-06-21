@@ -4,7 +4,7 @@ from unapi.util import download_attachment
 
 
 class AttachmentType(Enum):
-    Photo = 'photo'
+    Image = 'image'
     Video = 'video'
     Audio = 'audio'
     File = 'file'

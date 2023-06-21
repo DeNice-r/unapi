@@ -63,7 +63,7 @@ def save_file(file_path: str, file_content: bytes) -> str | None:
 
 
 def save_image(file_name: str, file_content: bytes) -> str:
-    local_path = generate_file_path(file_name, AttachmentType.Photo.value)
+    local_path = generate_file_path(file_name, AttachmentType.Image.value)
     return save_file(local_path, file_content) or ""
 
 
