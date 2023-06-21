@@ -30,11 +30,26 @@ class ViberEvent(Event):
         attachments = []
         message = self.original.message
         file_name = message.file_name.split('.')
+
+        # Viber has picture instead of photo, so we need to map it
+        attachment_type_mapping = {
+            'picture': AttachmentType.Photo.value
+        }
+
+        _type = message.type
+        if _type in attachment_type_mapping:
+            attachment_type = AttachmentType(attachment_type_mapping[_type])
+        else:
+            try:
+                attachment_type = AttachmentType(_type)
+            except ValueError:
+                return attachments
+
         attachments.append(
             Attachment(
                 name=file_name[0],
                 extension=file_name[-1],
-                type=AttachmentType(message.type),
+                type=attachment_type,
                 url=message.media
             )
         )

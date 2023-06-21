@@ -27,16 +27,31 @@ class FacebookEvent(Event):
     def text(self) -> str:
         return self.original.entry[0].messaging[0].message.text
 
-    def get_attachments(self) -> List[Attachment]:
+    def _get_attachments(self) -> List[Attachment]:
         attachments = []
         for attachment in self.original.entry[0].messaging[0].message.attachments:
             url = attachment.payload.url
             file_name = url.split('/')[-1].split('?')[0].split('.')
+
+            # Facebook has image instead of photo, so we need to map it
+            attachment_type_mapping = {
+                'image': AttachmentType.Photo.value
+            }
+
+            _type = attachment.type
+            if _type in attachment_type_mapping:
+                attachment_type = AttachmentType(attachment_type_mapping[_type])
+            else:
+                try:
+                    attachment_type = AttachmentType(_type)
+                except ValueError:
+                    continue
+
             attachments.append(
                 Attachment(
                     name=file_name[0],
                     extension=file_name[-1],
-                    type=AttachmentType(attachment.type),
+                    type=attachment_type,
                     url=url
                 )
             )
