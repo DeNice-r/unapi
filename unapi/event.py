@@ -60,12 +60,12 @@ class Event(metaclass=AbcNoPublicConstructor):
         :return: List[Attachment]
         """
         if self.__attachments is None:
-            self.__attachments = self.get_attachments()
+            self.__attachments = self._get_attachments()
 
         return self.__attachments
 
     @abstractmethod
-    def get_attachments(self) -> List[Attachment]:
+    def _get_attachments(self) -> List[Attachment]:
         """
         A method that gathers message attachments
         :return: List[Attachment]
