@@ -26,6 +26,10 @@ class TelegramEvent(Event):
 
     def _get_attachments(self) -> list:
         attachments = []
+
+        if self.original.message.photo is None:
+            return attachments
+
         file_id = self.original.message.photo[-1].file_id
         file_url = f"https://api.telegram.org/bot{telegram_token}/getFile?file_id={file_id}"
         response_json = requests.get(file_url).json()
