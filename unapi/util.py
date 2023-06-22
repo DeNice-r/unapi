@@ -1,6 +1,6 @@
 import logging
 from uuid import uuid4
-from os import environ, path
+from os import environ, path, makedirs
 from datetime import datetime
 from urllib.parse import urljoin as _urljoin
 from abc import ABC
@@ -47,8 +47,11 @@ def generate_file_path(file_name: str, file_type: str) -> str:
     return path.normpath(local_path)
 
 
-def save_file(file_path: str, file_content: bytes) -> str | None:
+def save_file(file_path: str, file_content: bytes, make_dirs=True) -> str | None:
     try:
+        if make_dirs:
+            directory = path.dirname(file_path)
+            makedirs(directory, exist_ok=True)
         with open(file_path, "wb") as f:
             f.write(file_content)
         return file_path
