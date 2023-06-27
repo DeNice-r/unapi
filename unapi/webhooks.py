@@ -5,7 +5,6 @@ from os import environ
 import asyncio
 import aiohttp
 
-
 telegram_token = environ["TELEGRAM_TOKEN"]
 telegram_verification_token = environ["TELEGRAM_VERIFICATION_TOKEN"]
 viber_token = environ["VIBER_TOKEN"]

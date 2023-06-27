@@ -13,7 +13,7 @@ def send_message(chat_id, text: str):
                              "receiver": chat_id,
                              "min_api_version": min_api_version,
                              "sender": {
-                                "name": "UnAPIBot"
+                                 "name": "UnAPIBot"
                              },
                              "type": "text",
                              "text": text
@@ -22,5 +22,3 @@ def send_message(chat_id, text: str):
                              'Content-Type': 'application/json',
                              'X-Viber-Auth-Token': viber_token
                          })
-
-

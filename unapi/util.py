@@ -7,8 +7,6 @@ from abc import ABC
 from typing import Type, Any, TypeVar
 import base64
 import requests
-from pydantic.typing import PathLike
-
 
 local_storage_path = environ["LOCAL_STORAGE_PATH"]
 
