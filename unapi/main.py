@@ -26,8 +26,11 @@ async def index():
 
 @app.get("/init")
 async def webhook_init():
-    await webhooks_init()
-    return f"I'm ok"
+    try:
+        await webhooks_init()
+        return f"I'm ok"
+    except Exception as e:
+        return HTTPException(500, f"Error: {e}")
 
 
 @app.post(webhook_path)
