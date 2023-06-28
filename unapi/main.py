@@ -18,9 +18,8 @@ webhook_path = environ["WEBHOOK_PATH"]
 
 @app.get("/")
 async def index():
-    r = random.Random()
     return (
-        f"I'm ok {r.uniform(0, 1000)}",
+        "I'm ok",
         "https://unapi.pp.ua/init",
         )
 
