@@ -1,13 +1,16 @@
+import os
 import logging
-from uuid import uuid4
+import uuid
 from os import environ, path, makedirs
-from datetime import datetime
+import datetime
 from urllib.parse import urljoin as _urljoin
 from abc import ABC
 from typing import Type, Any, TypeVar
 import base64
 import requests
+from dotenv import load_dotenv
 
+load_dotenv()
 local_storage_path = environ["LOCAL_STORAGE_PATH"]
 
 
@@ -37,12 +40,14 @@ def base64_decode(string: str) -> str:
 
 
 def generate_file_path(file_name: str, file_type: str) -> str:
-    extension = path.splitext(file_name)[-1]
-    local_path = path.join(
+    if not file_name or not file_type:
+        raise ValueError("file_name and file_type cannot be empty")
+    extension = os.path.splitext(file_name)[1]
+    local_path = os.path.join(
         local_storage_path,
         file_type,
-        datetime.now().strftime("%d.%m.%Y_%H-%M-%S") + '_' + str(uuid4()) + extension)
-    return path.normpath(local_path)
+        datetime.datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S") + '_' + str(uuid.uuid4()) + extension)
+    return os.path.normpath(local_path)
 
 
 def save_file(file_path: str, file_content: bytes, make_dirs=True) -> str | None:
