@@ -18,10 +18,7 @@ webhook_path = environ["WEBHOOK_PATH"]
 
 @app.get("/")
 async def index():
-    return (
-        "I'm ok",
-        "https://unapi.pp.ua/init",
-        )
+    return "I'm ok"
 
 
 @app.get("/init")
