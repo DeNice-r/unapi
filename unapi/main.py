@@ -36,6 +36,7 @@ async def webhook_callback(request: Request):
     try:
         event = await EventFactory.create_event(request)
     except ValueError as e:
+        logging.warning(f"Error: {e}")
         return HTTPException(status_code=400, detail=str(e))
     event.send_message(event.text)
     return "OK"
