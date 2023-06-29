@@ -3,40 +3,13 @@ import logging
 import uuid
 from os import environ, path, makedirs
 import datetime
-from urllib.parse import urljoin as _urljoin
 from abc import ABC
 from typing import Type, Any, TypeVar
-import base64
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 local_storage_path = environ["LOCAL_STORAGE_PATH"]
-
-
-def webhook_urljoin(base: str, path: str) -> str:
-    if base[-1] != "/":
-        base += "/"
-    if base[0] != "/":
-        base = "/" + base
-    return _urljoin(base, path)
-
-
-def base64_encode(string: str) -> str:
-    """
-    Removes any `=` used as padding from the encoded string.
-    """
-    encoded = base64.urlsafe_b64encode(string.encode("utf-8")).decode("utf-8")
-    return encoded.rstrip("=")
-
-
-def base64_decode(string: str) -> str:
-    """
-    Adds back in the required padding before decoding.
-    """
-    padding = 4 - (len(string) % 4)
-    string = string + ("=" * padding)
-    return base64.urlsafe_b64decode(string.encode("utf-8")).decode("utf-8")
 
 
 def generate_file_path(file_name: str, file_type: str) -> str:
