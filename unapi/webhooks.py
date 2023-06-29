@@ -5,6 +5,11 @@ from os import environ
 import asyncio
 import aiohttp
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 telegram_token = environ["TELEGRAM_TOKEN"]
 telegram_verification_token = environ["TELEGRAM_VERIFICATION_TOKEN"]
 viber_token = environ["VIBER_TOKEN"]
