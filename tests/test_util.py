@@ -8,22 +8,38 @@ from os import environ
 
 load_dotenv()
 
-local_storage_path = environ["LOCAL_STORAGE_PATH"]
-dt_str = '2023-01-01_00-00-00'
-uuid_str = '00000000-0000-0000-0000-000000000001'
+
+@pytest.fixture
+def local_storage_path():
+    return environ["LOCAL_STORAGE_PATH"]
 
 
-class TestGenerateFilePath:
+@pytest.fixture
+def dt_str():
+    return '2023-01-01_00-00-00'
+
+
+@pytest.fixture
+def uuid_str():
+    return '00000000-0000-0000-0000-000000000000'
+
+
+@pytest.fixture()
+def mock_datetime(dt_str):
     class MockDateTime(datetime.datetime):
         @classmethod
         def utcnow(cls):
-            return cls.strptime(dt_str, '%Y-%m-%d_%H-%M-%S')
+            return datetime.datetime.strptime(dt_str, '%Y-%m-%d_%H-%M-%S')
 
+    return MockDateTime
+
+
+class TestGenerateFilePath:
     #  Tests that a valid file path is generated
-    def test_valid_file_path(self, mocker):
+    def test_valid_file_path(self, dt_str, uuid_str, mocker, mock_datetime, local_storage_path):
         datetime.datetime.strptime(dt_str, '%Y-%m-%d_%H-%M-%S')
         mocker.patch('uuid.uuid4', return_value=uuid.UUID(uuid_str))
-        mocker.patch('datetime.datetime', self.MockDateTime)
+        mocker.patch('datetime.datetime', mock_datetime)
         file_name = 'test'
         file_extension = 'txt'
         full_file_name = file_name + '.' + file_extension
