@@ -39,6 +39,7 @@ def save_file(file_path: str, file_content: bytes, make_dirs=True) -> str | None
         logging.error(f"Error: permission denied for {file_path}.")
     except Exception as e:
         logging.error(f"Error: an unexpected error occurred while saving the file:\n{e}")
+    return None
 
 
 def save_image(file_name: str, file_content: bytes) -> str:
