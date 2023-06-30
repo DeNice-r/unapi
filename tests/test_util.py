@@ -78,14 +78,14 @@ class TestSaveFile:
     def test_save_file_success(self, tmp_path):
         file_path = Path(tmp_path) / "test.txt"
         file_content = b"test content"
-        assert save_file(str(file_path), file_content) == str(file_path)
+        assert save_file(file_path, file_content) == file_path
         assert file_path.read_bytes() == file_content
 
     #  Tests that the function creates the necessary directories when make_dirs is True.
     def test_save_file_create_dirs(self, tmp_path):
         file_path = Path(tmp_path) / "dir1/dir2/test.txt"
         file_content = b"test content"
-        assert save_file(str(file_path), file_content) == str(file_path)
+        assert save_file(file_path, file_content) == file_path
         assert file_path.read_bytes() == file_content
 
     #  Tests that the function returns None when the file path is None.
@@ -103,4 +103,4 @@ class TestSaveFile:
         file_path = tmp_path / "test.txt"
         file_content = b"test content"
         mocker.patch("builtins.open", side_effect=Exception("Unexpected error"))
-        assert save_file(str(file_path), file_content) is None
+        assert save_file(file_path, file_content) is None
