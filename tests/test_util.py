@@ -4,9 +4,10 @@ import uuid
 from pathlib import Path
 import pytest
 import requests
-from unapi.util import generate_file_path, save_file, download_file
-from dotenv import load_dotenv
+from unapi.util import generate_file_path, save_file, download_file, download_attachment
+from unapi.attachment import Attachment, AttachmentType
 from os import environ
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -136,3 +137,28 @@ class TestDownloadFile:
     def test_connection_error(self, mocker):
         mocker.patch('requests.get', side_effect=requests.exceptions.ConnectionError)
         assert download_file('http://validurl.com') is None
+
+
+class TestDownloadAttachment:
+    @pytest.fixture
+    def attachment(self):
+        return Attachment(name='test', type_=AttachmentType.Image, extension='png', url='http://test.com/test.png')
+
+    #  Tests that attachment is downloaded successfully and saved to file when save=True
+    def test_download_success_save_true(self, mocker, attachment, dt_str, uuid_str, mock_datetime, tmp_path):
+        file_path = Path(tmp_path) / attachment.type_.value / f'{dt_str}_{uuid_str}.{attachment.extension}'
+        mocker.patch(
+            'unapi.util.generate_file_path',
+            return_value=file_path
+        )
+        content = b'test content'
+        mocker.patch('requests.get', return_value=mocker.MagicMock(ok=True, content=content))
+        assert download_attachment(attachment) == file_path
+        assert file_path.read_bytes() == content
+        requests.get.assert_called_once_with(attachment.url)
+
+    #  Tests that attachment is downloaded successfully and returned as bytes when save=False
+    def test_download_success_save_false(self, mocker, attachment):
+        mocker.patch('requests.get', return_value=mocker.MagicMock(ok=True, content=b'test content'))
+        assert download_attachment(attachment, save=False) == b'test content'
+        requests.get.assert_called_once_with(attachment.url)
