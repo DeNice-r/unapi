@@ -1,7 +1,6 @@
 import os
 import logging
 import uuid
-from os import environ, path, makedirs
 import datetime
 from abc import ABC
 from typing import Type, Any, TypeVar
@@ -9,7 +8,7 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv()
-local_storage_path = environ["LOCAL_STORAGE_PATH"]
+local_storage_path = os.environ["LOCAL_STORAGE_PATH"]
 
 
 def generate_file_path(file_name: str, file_type: str) -> str:
@@ -25,9 +24,9 @@ def generate_file_path(file_name: str, file_type: str) -> str:
 
 def save_file(file_path: str, file_content: bytes, make_dirs=True) -> str | None:
     try:
-        directory = path.dirname(file_path)
+        directory = os.path.dirname(file_path)
         if make_dirs and directory:
-            makedirs(directory, exist_ok=True)
+            os.makedirs(directory, exist_ok=True)
         with open(file_path, "wb") as f:
             f.write(file_content)
         return file_path
