@@ -1,4 +1,3 @@
-import random
 import logging
 
 from fastapi import FastAPI, HTTPException, Query, Request
