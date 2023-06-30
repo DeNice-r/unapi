@@ -11,7 +11,9 @@ from unapi.platforms.facebook import api
 from unapi.platforms.facebook.model import Model
 
 from os import environ, path
+from dotenv import load_dotenv
 
+load_dotenv()
 facebook_verification_token = environ["FACEBOOK_VERIFICATION_TOKEN"]
 facebook_app_secret = environ["FACEBOOK_APP_SECRET"]
 
