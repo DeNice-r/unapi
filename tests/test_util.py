@@ -3,7 +3,8 @@ import datetime
 import uuid
 from pathlib import Path
 import pytest
-from unapi.util import generate_file_path, save_file
+import requests
+from unapi.util import generate_file_path, save_file, download_file
 from dotenv import load_dotenv
 from os import environ
 
@@ -104,3 +105,34 @@ class TestSaveFile:
         file_content = b"test content"
         mocker.patch("builtins.open", side_effect=Exception("Unexpected error"))
         assert save_file(file_path, file_content) is None
+
+
+class TestDownloadFile:
+    #  Tests that a valid URL returns content
+    def test_valid_url(self, mocker):
+        mocker.patch('requests.get', return_value=mocker.Mock(ok=True, content=b'file content'))
+        assert download_file('http://validurl.com') == b'file content'
+
+    #  Tests that an empty response returns None
+    def test_empty_response(self, mocker):
+        mocker.patch('requests.get', return_value=mocker.Mock(ok=False))
+        assert download_file('http://validurl.com') is None
+
+    #  Tests that an invalid URL returns None
+    def test_invalid_url(self, mocker):
+        mocker.patch('requests.get', side_effect=requests.exceptions.RequestException)
+        assert download_file('http://invalidurl.com') is None
+
+    #  Tests that a non-HTTP URL returns None
+    def test_non_http_url(sel):
+        assert download_file('ftp://validurl.com') is None
+
+    #  Tests that a timeout returns None
+    def test_timeout(self, mocker):
+        mocker.patch('requests.get', side_effect=requests.exceptions.Timeout)
+        assert download_file('http://validurl.com') is None
+
+    #  Tests that a connection error returns None
+    def test_connection_error(self, mocker):
+        mocker.patch('requests.get', side_effect=requests.exceptions.ConnectionError)
+        assert download_file('http://validurl.com') is None
