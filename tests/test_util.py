@@ -1,8 +1,9 @@
 import os
 import datetime
 import uuid
+from pathlib import Path
 import pytest
-from unapi.util import generate_file_path
+from unapi.util import generate_file_path, save_file
 from dotenv import load_dotenv
 from os import environ
 
@@ -70,3 +71,36 @@ class TestGenerateFilePath:
         file_type = 'txt'
         file_path = generate_file_path(file_name, file_type)
         assert os.path.splitext(file_path)[1] == f'.{file_type}'
+
+
+class TestSaveFile:
+    #  Tests that the function saves a file successfully when given a valid file path and content.
+    def test_save_file_success(self, tmp_path):
+        file_path = Path(tmp_path) / "test.txt"
+        file_content = b"test content"
+        assert save_file(str(file_path), file_content) == str(file_path)
+        assert file_path.read_bytes() == file_content
+
+    #  Tests that the function creates the necessary directories when make_dirs is True.
+    def test_save_file_create_dirs(self, tmp_path):
+        file_path = Path(tmp_path) / "dir1/dir2/test.txt"
+        file_content = b"test content"
+        assert save_file(str(file_path), file_content) == str(file_path)
+        assert file_path.read_bytes() == file_content
+
+    #  Tests that the function returns None when the file path is None.
+    def test_save_file_file_path_none(self, tmp_path):
+        file_content = b"test content"
+        assert save_file(None, file_content) is None
+
+    #  Tests that the function returns None when the file path is an empty string.
+    def test_save_file_file_path_empty_string(self, tmp_path):
+        file_content = b"test content"
+        assert save_file("", file_content) is None
+
+    #  Tests that the function returns None when an unexpected error occurs.
+    def test_save_file_unexpected_error(self, tmp_path, mocker):
+        file_path = tmp_path / "test.txt"
+        file_content = b"test content"
+        mocker.patch("builtins.open", side_effect=Exception("Unexpected error"))
+        assert save_file(str(file_path), file_content) is None

@@ -25,8 +25,8 @@ def generate_file_path(file_name: str, file_type: str) -> str:
 
 def save_file(file_path: str, file_content: bytes, make_dirs=True) -> str | None:
     try:
-        if make_dirs:
-            directory = path.dirname(file_path)
+        directory = path.dirname(file_path)
+        if make_dirs and directory:
             makedirs(directory, exist_ok=True)
         with open(file_path, "wb") as f:
             f.write(file_content)
